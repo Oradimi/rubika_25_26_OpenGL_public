@@ -5,6 +5,7 @@ This is the repository used by the **OpenGL** lesson.
 1. [Threshold 0](#threshold-0)
 2. [Threshold 1](#threshold-1)
 3. [Threshold 2](#threshold-2)
+3. [Threshold 3](#threshold-3)
 
 ## Threshold 0
 
@@ -339,7 +340,7 @@ This image might help you understand the attribute description
 
 As you might notice, it is really painful to add an attribute. Let's simplify the all process. Create a structure that contains the same members.
 ```cpp
-	struct Vertices
+	struct Vertex
 	{
 		float position[3];
 		float color[3];
@@ -348,7 +349,7 @@ As you might notice, it is really painful to add an attribute. Let's simplify th
 
 Then modify the vertices array to use the structure we have created
 ```cpp
-	Vertices vertices[] =
+	Vertex vertices[] =
 	{
 		{ 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f },   // bottom right
 		{ -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f },	// bottom left
@@ -360,3 +361,136 @@ The stride between two position is equal to the size of the entire structure, th
 The pointer of the first member is also easily foundable using the `offsetof` keyword. You can now modify your calls to `glVertexAttribPointer` using those keywords. Thanks to that, you won't be bothered anymore by the stride, offset... anymore and adding a new attribute won't make you change anything.
 
 Finally, you have to modify your vertex shader to use this new attribute. You must declare a new input variable (a vec3 to match what we sent) and pass it to the fragment shader.
+
+## Threshold 3
+
+The purpose of this threshold is to add textures to our primitives.
+
+### Step 0
+
+In order to avoid having plenty of code in our `init` or our `draw` function, let's create a `Texture` class (as you did for the `Shader` class).
+```cpp
+class Texture
+{
+public:
+    Texture();
+	~Texture();
+    
+	// Read both file to init the vertex shader and the fragment shader
+	bool Init(const char* texturePath);
+
+    // Use the corresponding texture
+    void Use();
+};
+```
+
+About the `Init` function, the first thing we need to do, is to load the image in the memory using the path given as parameter. To do so, we are not going to make our own parser but use a dedicated library : `stb_image`. It has already been included in the repository, so, to use it, you must add to the cpp file that needs it:
+```cpp
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+```
+
+Then, use `stbi_load` to load the image in memory (the `req_comp` parameter won't be used for now and must be set to 0).
+
+Depending of the texture you chose, you might need to flip it vertically. In that case, you need to call the following function before you call to `stbi_load`.
+```cpp
+stbi_set_flip_vertically_on_load(true);
+```
+
+You now have a buffer that contains your texture, we can use with OpenGl. Keep in mind that after that we use that buffer in an OpenGL context (after sending it to the GPU), we don't need anymore so we have to free it to avoid leaks.
+
+Here are a list of useful functions (that you will need to use):
+- stbi_load
+- stbi_set_flip_vertically_on_load
+- stbi_image_free
+
+### Step 1
+
+Now, it is OpenGL time! Create a texture and bind it as we did numerous times. Then, we have to configure the OpenGL texture the **wrapping** and **filtering**.
+
+#### Wrapping
+
+As an picture is better than a thousand words, the wrapping allows us to determine how the texture is supposed to handle itself beyond its limits
+![img](https://open.gl/media/img/c3_clamping.png).
+
+To do so, use the right function to set `GL_TEXTURE_WRAP_S` and `GL_TEXTURE_WRAP_T` to the value you want (because those parameter might be hard to find in the list of all parameters in the documentation, I help you on that). Depending of the value you picked, we might need to setup the border color (`GL_TEXTURE_BORDER_COLOR`).
+
+#### Filtering
+
+Filtering might be harder to see on a picture (in a markdonw file), so here is a brief explanation. Since texture coordinates are resolution independent, they won't always match a pixel exactly. That means that the GPU must determine which color to use in that situation. There are two solutions:
+- Or we use `GL_NEAREST` and we will take the color of the nearest pixel, such as: ![img](https://learnopengl.com/img/getting-started/filter_nearest.png)
+- Or we use `GL_LINEAR` and we will compute an interpolated value between the neighboring pixels of the texture. The nearer the position to a pixel the more that pixel will contribute in the interpolation such as:
+![img](https://learnopengl.com/img/getting-started/filter_linear.png)
+
+As a result ![img](https://open.gl/media/img/c3_filtering.png)
+
+To do so, use the right function to set `GL_TEXTURE_MIN_FILTER` and `GL_TEXTURE_MAG_FILTER` to the value you want (because those parameter might be hard to find in the list of all parameters in the documentation, I help you on that).
+
+Here are a list of useful functions (that you will need to use):
+- glGenTextures
+- glBindTexture
+- glTexParameter
+
+### Step 2
+
+Our texture is configured, it is now time to send the buffer to the GPU using `glTexImage2D`. One of the paramater might confuse you : `level`. Let's talk a bit of mipmaps. Mipmap is a precalculated sequence of images, each of which has an image resolution which is a factor of two smaller than the previous. For instance, you want to render a texture on a very tiny object far in the background of your image, you will have difficulties finding the right color you should use (because you initial image is 4k). So, the GPU will use the right image from the mipmap sequence, which makes a more precise rendering, use less memory... You can provide different images and setup manually the mipmap (using the `level` parameter) or setting it to 0 and asks OpenGL to generate the mipmap based on the texture. 
+
+Here are a list of useful functions (that you will need to use):
+- glTexImage2D
+- glGenerateMipmap
+
+### Step 3
+Our texture is now created, OpenGL side, we can use it.
+
+Add a `float texCoord[2];` to your `Vertex` structure, modify the `vertices` array with the following code, and finally, don't forget to add this new attribute to your VBO declaration.
+```cpp
+	Vertex vertices[] =
+	{
+		// positions          // colors           // texture coords
+		{  0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f }, // top right
+		{  0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f }, // bottom right
+		{ -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f }, // bottom left
+		{ -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f }  // top left 
+	};
+```
+
+As a temporary implementation (until next step), implement the `Use` function in our `Texture` class by using the corresponding bind function. That will be sufficient for now. Finally, call the `Use` function in the draw part, before binding your VAO.
+
+Our attributes are setup and our texture is bound, we can now use it in our shaders. We have no use of this information in our vertex shader, so pass it to the fragment shader. Our texture is accessible through an uniform:
+```glsl
+uniform sampler2D ourTexture;
+```
+This type can be used in many way but let's start simple with the `texture` function such as
+```glsl
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
+
+void main()
+{
+    FragColor = texture(ourTexture, TexCoord);
+}
+```
+
+Congratulation, you have displayed your first texture!
+
+As an exercise, combine data from your Vertex struct (color & texture).
+
+#### Step 4
+
+Let's get back a bit to think how everything works. How this uniform has been set?
+
+The answer is : everythin works because we only have a single texture. This solution cannot work is we need multiple textures.
+
+To do it right, you need to do is to remplace the content of the `Use` function by the sequence:
+- Active the texture N (0 <= N <= 15)
+- Bind the texture
+- Set the uniform using the index N you used to activate the texture.
+
+You might need to change the signature of the `Use` function. Feel free to add what is necessary.
+
+Let's try it. Create a second instance of `Texture` based on a different file. Use both of those textures and modify your fragment shader to blend those two textures (using the `mix` function).
+
+Here are a list of useful functions (that you will need to use):
+- glActiveTexture
+- glBindTexture
