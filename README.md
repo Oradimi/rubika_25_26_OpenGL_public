@@ -6,6 +6,8 @@ This is the repository used by the **OpenGL** lesson.
 2. [Threshold 1](#threshold-1)
 3. [Threshold 2](#threshold-2)
 3. [Threshold 3](#threshold-3)
+3. [Threshold 4](#threshold-4)
+3. [Threshold 5](#threshold-5)
 
 ## Threshold 0
 
@@ -653,3 +655,86 @@ glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)  
 };
 ```
+
+## Threshold 5
+
+The purpose of this threshold is to be able to control the camera.
+- ZQSD to move the camera
+- Mouse for rotation
+- Scroll for zoom
+
+### Step 0
+
+You might need a recap on Euler Angles to handle the rotation properly.
+
+### Step 1
+
+Create a `Camera` class. Let the input function apart for now and implement the others functions.
+```cpp
+class Camera
+{
+public:
+    enum class Direction
+    {
+        Forward,
+        Backward,
+        Right,
+        Left
+    };
+
+    Camera();
+    Camera(const glm::vec3& pos, 
+        const glm::vec3& worldUp,
+        float pitch,
+        float yaw);
+
+    // use glm::lookAt
+    glm::mat4 GetMatrix() const;
+
+    // Input
+    void ProcessKeyboard(Direction direction, float deltaTime);
+    void ProcessMouse(float xoffset, float yoffset);
+    void ProcessMouseScroll(float yoffset);
+
+private:
+    // Compute the Front and Right vector using the euler angles
+    void UpdateCameraRotation();
+
+    // Translation
+    glm::vec3 Position;
+
+    // Rotation - Must be normalized
+    glm::vec3 Front;
+    glm::vec3 Up;
+    glm::vec3 Right;
+    glm::vec3 WorldUp;
+
+    // Euler Angles
+    float Yaw;
+    float Pitch;
+    
+    // Camera options
+    float MovementSpeed;
+    float MouseSensitivity;
+    float Fov;
+};
+```
+
+### Step 2
+
+To process the keyboard input, we will need the delta time between two frames.
+Update the `main.cpp` file to compute the deltaTime.
+
+Then, by modifying the `processInput` function, you can send the right event to you camera class if the right input is pressed.
+
+Implement the `ProcessKeyboard` function in the `Camera` class.
+
+Here are a list of useful functions (that you will need to use):
+- glfwGetTime
+- glfwGetKey
+
+### Step 3
+
+To process the mouse event, implement the `mouse_callback` function and call the `ProcessMouse` function (that you must implement too).
+
+Do the same for the scroll callback by implementing the `scroll_callback` and the `ProcessMouseScroll` functions.
