@@ -494,3 +494,162 @@ Let's try it. Create a second instance of `Texture` based on a different file. U
 Here are a list of useful functions (that you will need to use):
 - glActiveTexture
 - glBindTexture
+
+## Treshold 4 
+
+The purpose of this threshold is to add another dimension to our project, from 2D to 3D.
+
+### Step 0
+
+Mathematics will be important from now, if you need, take time to review matrix & vectors computation. You might also need to review how to convert matrix from a space to another (for instance, from local space to world space).
+
+We will the `glm` library for the mathematic aspect.
+
+### Step 1
+
+Let's start simple. Assume all our vertices are a translation in the local space. So to convert it to the local Position by the matrix of the object in the world space. For instance:
+```cpp
+glm::mat4 trans = glm::mat4(1.0f);
+trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));  
+```
+
+We are going to use this matrix in our vertex shader. To do so, pass it from the CPU to the shader as a uniform.
+- Add a new function `SetMatrix` in your `Shader` class (you might be interested by the `glm::value_ptr` function).
+- Declare your uniform as a `mat4` in your vertex shader and combine it with your vertex position.
+
+Your object should be rotated and smaller that it was at this stage.
+
+As an exercise, update the matrix each frame (using the time for instance) to rotate, translate, scale... your object
+
+### Step 2
+
+In the previous threshold, we handled the local space. In the last step, we had handled the world space. In this step, we will handle the last two spaces : the view/camera space and the projection space.
+
+The final equation of the position looks like :
+<center>V*clip*=M*projection* ⋅ M*view* ⋅ M*world* ⋅ V*local*</center>
+
+#### Projection
+
+We have the choice between two differents kind of projection:
+- **Orthographic projection**
+> An orthographic projection matrix defines a cube-like frustum box that defines the clipping space where each vertex outside this box is clipped. When creating an orthographic projection matrix we specify the width, height and length of the visible frustum. The frustum looks a bit like a container: 
+![img](https://learnopengl.com/img/getting-started/orthographic_frustum.png)
+
+To use this projection use 
+```cpp
+glm::ortho(0.0f, width, 0.0f, height, near_clip, far_clip);
+```
+
+- **Perspective projection**
+> If you ever were to enjoy the graphics the real life has to offer you'll notice that objects that are farther away appear much smaller. This effect is something we call perspective.
+This effect is possible because the frustum is not a box anymore but a prism:
+![img](https://learnopengl.com/img/getting-started/perspective_frustum.png)
+
+To use this projection use 
+```cpp
+glm::perspective(fov_radians, (float) width/(float) height, near_clip, far_clip);
+```
+
+Here are a comparison of the two effects:
+![img](https://europe1.discourse-cdn.com/unity/original/3X/8/6/86f70b34fdd7ad262170df029bcac8c8850105cb.png)
+![img](https://learnopengl.com/img/getting-started/perspective_orthographic.png)
+
+*I advise you to use the second one, but it is a you please*
+
+#### View/Camera
+
+The matrix of the camera/view a simple matrix in world space. Nothing to add here.
+
+Let's combine them all. Here are value that you should use to display your panel as a 3D object:
+- near_clip : 0.1f
+- far_clip : 100.f
+- (fov is applicable) : 45.f °
+- camera's translation : `0.f, 0.f, -3.f`
+- object's world rotation : -55.f °
+
+With all those data, you should be able to display your panel as a *visible* 3D object. (To do so, pass every useful data to the shader).
+
+### Step 3
+
+Let's add panels. Deactivate EBO for a bit and use those vertices (color is not used in the fragment shader):
+```cpp
+Vertex vertices[] = {
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f }
+};
+```
+Don't forget to replace your draw call by
+```cpp
+glDrawArrays(GL_TRIANGLES, 0, 36);
+```
+
+Then, change the model rotation each frame such as
+```cpp
+model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+```
+
+A cube should be displayed in a weird way. Some faces override some others in a unatural way, because depth is not taken into account.
+
+We will need to activate the Z-buffer in the init (through the depth test). However, this buffer must be clear each frame. Otherwise, the depth of previous frame might interfer the draw of a new frame. TO do so, start each draw by clearing the `GL_COLOR_BUFFER_BIT` and the `GL_DEPTH_BUFFER_BIT`.
+
+Here are a list of useful functions (that you will need to use):
+- glEnable
+- glClear
+
+### Step 4
+
+Add a lots of new cube using those position:
+```cpp
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
+```
