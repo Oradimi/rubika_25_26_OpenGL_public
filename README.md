@@ -5,6 +5,9 @@ This is the repository used by the **OpenGL** lesson.
 1. [Threshold 0](#threshold-0)
 2. [Threshold 1](#threshold-1)
 3. [Threshold 2](#threshold-2)
+3. [Threshold 3](#threshold-3)
+3. [Threshold 4](#threshold-4)
+3. [Threshold 5](#threshold-5)
 
 ## Threshold 0
 
@@ -339,7 +342,7 @@ This image might help you understand the attribute description
 
 As you might notice, it is really painful to add an attribute. Let's simplify the all process. Create a structure that contains the same members.
 ```cpp
-	struct Vertices
+	struct Vertex
 	{
 		float position[3];
 		float color[3];
@@ -348,7 +351,7 @@ As you might notice, it is really painful to add an attribute. Let's simplify th
 
 Then modify the vertices array to use the structure we have created
 ```cpp
-	Vertices vertices[] =
+	Vertex vertices[] =
 	{
 		{ 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f },   // bottom right
 		{ -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f },	// bottom left
@@ -360,3 +363,378 @@ The stride between two position is equal to the size of the entire structure, th
 The pointer of the first member is also easily foundable using the `offsetof` keyword. You can now modify your calls to `glVertexAttribPointer` using those keywords. Thanks to that, you won't be bothered anymore by the stride, offset... anymore and adding a new attribute won't make you change anything.
 
 Finally, you have to modify your vertex shader to use this new attribute. You must declare a new input variable (a vec3 to match what we sent) and pass it to the fragment shader.
+
+## Threshold 3
+
+The purpose of this threshold is to add textures to our primitives.
+
+### Step 0
+
+In order to avoid having plenty of code in our `init` or our `draw` function, let's create a `Texture` class (as you did for the `Shader` class).
+```cpp
+class Texture
+{
+public:
+    Texture();
+	~Texture();
+    
+	// Read both file to init the vertex shader and the fragment shader
+	bool Init(const char* texturePath);
+
+    // Use the corresponding texture
+    void Use();
+};
+```
+
+About the `Init` function, the first thing we need to do, is to load the image in the memory using the path given as parameter. To do so, we are not going to make our own parser but use a dedicated library : `stb_image`. It has already been included in the repository, so, to use it, you must add to the cpp file that needs it:
+```cpp
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+```
+
+Then, use `stbi_load` to load the image in memory (the `req_comp` parameter won't be used for now and must be set to 0).
+
+Depending of the texture you chose, you might need to flip it vertically. In that case, you need to call the following function before you call to `stbi_load`.
+```cpp
+stbi_set_flip_vertically_on_load(true);
+```
+
+You now have a buffer that contains your texture, we can use with OpenGl. Keep in mind that after that we use that buffer in an OpenGL context (after sending it to the GPU), we don't need anymore so we have to free it to avoid leaks.
+
+Here are a list of useful functions (that you will need to use):
+- stbi_load
+- stbi_set_flip_vertically_on_load
+- stbi_image_free
+
+### Step 1
+
+Now, it is OpenGL time! Create a texture and bind it as we did numerous times. Then, we have to configure the OpenGL texture the **wrapping** and **filtering**.
+
+#### Wrapping
+
+As an picture is better than a thousand words, the wrapping allows us to determine how the texture is supposed to handle itself beyond its limits
+![img](https://open.gl/media/img/c3_clamping.png).
+
+To do so, use the right function to set `GL_TEXTURE_WRAP_S` and `GL_TEXTURE_WRAP_T` to the value you want (because those parameter might be hard to find in the list of all parameters in the documentation, I help you on that). Depending of the value you picked, we might need to setup the border color (`GL_TEXTURE_BORDER_COLOR`).
+
+#### Filtering
+
+Filtering might be harder to see on a picture (in a markdonw file), so here is a brief explanation. Since texture coordinates are resolution independent, they won't always match a pixel exactly. That means that the GPU must determine which color to use in that situation. There are two solutions:
+- Or we use `GL_NEAREST` and we will take the color of the nearest pixel, such as: ![img](https://learnopengl.com/img/getting-started/filter_nearest.png)
+- Or we use `GL_LINEAR` and we will compute an interpolated value between the neighboring pixels of the texture. The nearer the position to a pixel the more that pixel will contribute in the interpolation such as:
+![img](https://learnopengl.com/img/getting-started/filter_linear.png)
+
+As a result ![img](https://open.gl/media/img/c3_filtering.png)
+
+To do so, use the right function to set `GL_TEXTURE_MIN_FILTER` and `GL_TEXTURE_MAG_FILTER` to the value you want (because those parameter might be hard to find in the list of all parameters in the documentation, I help you on that).
+
+Here are a list of useful functions (that you will need to use):
+- glGenTextures
+- glBindTexture
+- glTexParameter
+
+### Step 2
+
+Our texture is configured, it is now time to send the buffer to the GPU using `glTexImage2D`. One of the paramater might confuse you : `level`. Let's talk a bit of mipmaps. Mipmap is a precalculated sequence of images, each of which has an image resolution which is a factor of two smaller than the previous. For instance, you want to render a texture on a very tiny object far in the background of your image, you will have difficulties finding the right color you should use (because you initial image is 4k). So, the GPU will use the right image from the mipmap sequence, which makes a more precise rendering, use less memory... You can provide different images and setup manually the mipmap (using the `level` parameter) or setting it to 0 and asks OpenGL to generate the mipmap based on the texture. 
+
+Here are a list of useful functions (that you will need to use):
+- glTexImage2D
+- glGenerateMipmap
+
+### Step 3
+Our texture is now created, OpenGL side, we can use it.
+
+Add a `float texCoord[2];` to your `Vertex` structure, modify the `vertices` array with the following code, and finally, don't forget to add this new attribute to your VBO declaration.
+```cpp
+	Vertex vertices[] =
+	{
+		// positions          // colors           // texture coords
+		{  0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f }, // top right
+		{  0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f }, // bottom right
+		{ -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f }, // bottom left
+		{ -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f }  // top left 
+	};
+```
+
+As a temporary implementation (until next step), implement the `Use` function in our `Texture` class by using the corresponding bind function. That will be sufficient for now. Finally, call the `Use` function in the draw part, before binding your VAO.
+
+Our attributes are setup and our texture is bound, we can now use it in our shaders. We have no use of this information in our vertex shader, so pass it to the fragment shader. Our texture is accessible through an uniform:
+```glsl
+uniform sampler2D ourTexture;
+```
+This type can be used in many way but let's start simple with the `texture` function such as
+```glsl
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
+
+void main()
+{
+    FragColor = texture(ourTexture, TexCoord);
+}
+```
+
+Congratulation, you have displayed your first texture!
+
+As an exercise, combine data from your Vertex struct (color & texture).
+
+#### Step 4
+
+Let's get back a bit to think how everything works. How this uniform has been set?
+
+The answer is : everythin works because we only have a single texture. This solution cannot work is we need multiple textures.
+
+To do it right, you need to do is to remplace the content of the `Use` function by the sequence:
+- Active the texture N (0 <= N <= 15)
+- Bind the texture
+- Set the uniform using the index N you used to activate the texture.
+
+You might need to change the signature of the `Use` function. Feel free to add what is necessary.
+
+Let's try it. Create a second instance of `Texture` based on a different file. Use both of those textures and modify your fragment shader to blend those two textures (using the `mix` function).
+
+Here are a list of useful functions (that you will need to use):
+- glActiveTexture
+- glBindTexture
+
+## Treshold 4 
+
+The purpose of this threshold is to add another dimension to our project, from 2D to 3D.
+
+### Step 0
+
+Mathematics will be important from now, if you need, take time to review matrix & vectors computation. You might also need to review how to convert matrix from a space to another (for instance, from local space to world space).
+
+We will the `glm` library for the mathematic aspect.
+
+### Step 1
+
+Let's start simple. Assume all our vertices are a translation in the local space. So to convert it to the local Position by the matrix of the object in the world space. For instance:
+```cpp
+glm::mat4 trans = glm::mat4(1.0f);
+trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));  
+```
+
+We are going to use this matrix in our vertex shader. To do so, pass it from the CPU to the shader as a uniform.
+- Add a new function `SetMatrix` in your `Shader` class (you might be interested by the `glm::value_ptr` function).
+- Declare your uniform as a `mat4` in your vertex shader and combine it with your vertex position.
+
+Your object should be rotated and smaller that it was at this stage.
+
+As an exercise, update the matrix each frame (using the time for instance) to rotate, translate, scale... your object
+
+### Step 2
+
+In the previous threshold, we handled the local space. In the last step, we had handled the world space. In this step, we will handle the last two spaces : the view/camera space and the projection space.
+
+The final equation of the position looks like :
+<center>V*clip*=M*projection* ⋅ M*view* ⋅ M*world* ⋅ V*local*</center>
+
+#### Projection
+
+We have the choice between two differents kind of projection:
+- **Orthographic projection**
+> An orthographic projection matrix defines a cube-like frustum box that defines the clipping space where each vertex outside this box is clipped. When creating an orthographic projection matrix we specify the width, height and length of the visible frustum. The frustum looks a bit like a container: 
+![img](https://learnopengl.com/img/getting-started/orthographic_frustum.png)
+
+To use this projection use 
+```cpp
+glm::ortho(0.0f, width, 0.0f, height, near_clip, far_clip);
+```
+
+- **Perspective projection**
+> If you ever were to enjoy the graphics the real life has to offer you'll notice that objects that are farther away appear much smaller. This effect is something we call perspective.
+This effect is possible because the frustum is not a box anymore but a prism:
+![img](https://learnopengl.com/img/getting-started/perspective_frustum.png)
+
+To use this projection use 
+```cpp
+glm::perspective(fov_radians, (float) width/(float) height, near_clip, far_clip);
+```
+
+Here are a comparison of the two effects:
+![img](https://europe1.discourse-cdn.com/unity/original/3X/8/6/86f70b34fdd7ad262170df029bcac8c8850105cb.png)
+![img](https://learnopengl.com/img/getting-started/perspective_orthographic.png)
+
+*I advise you to use the second one, but it is a you please*
+
+#### View/Camera
+
+The matrix of the camera/view a simple matrix in world space. Nothing to add here.
+
+Let's combine them all. Here are value that you should use to display your panel as a 3D object:
+- near_clip : 0.1f
+- far_clip : 100.f
+- (fov is applicable) : 45.f °
+- camera's translation : `0.f, 0.f, -3.f`
+- object's world rotation : -55.f °
+
+With all those data, you should be able to display your panel as a *visible* 3D object. (To do so, pass every useful data to the shader).
+
+### Step 3
+
+Let's add panels. Deactivate EBO for a bit and use those vertices (color is not used in the fragment shader):
+```cpp
+Vertex vertices[] = {
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f }
+};
+```
+Don't forget to replace your draw call by
+```cpp
+glDrawArrays(GL_TRIANGLES, 0, 36);
+```
+
+Then, change the model rotation each frame such as
+```cpp
+model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+```
+
+A cube should be displayed in a weird way. Some faces override some others in a unatural way, because depth is not taken into account.
+
+We will need to activate the Z-buffer in the init (through the depth test). However, this buffer must be clear each frame. Otherwise, the depth of previous frame might interfer the draw of a new frame. TO do so, start each draw by clearing the `GL_COLOR_BUFFER_BIT` and the `GL_DEPTH_BUFFER_BIT`.
+
+Here are a list of useful functions (that you will need to use):
+- glEnable
+- glClear
+
+### Step 4
+
+Add a lots of new cube using those position:
+```cpp
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
+```
+
+## Threshold 5
+
+The purpose of this threshold is to be able to control the camera.
+- ZQSD to move the camera
+- Mouse for rotation
+- Scroll for zoom
+
+### Step 0
+
+You might need a recap on Euler Angles to handle the rotation properly.
+
+### Step 1
+
+Create a `Camera` class. Let the input function apart for now and implement the others functions.
+```cpp
+class Camera
+{
+public:
+    enum class Direction
+    {
+        Forward,
+        Backward,
+        Right,
+        Left
+    };
+
+    Camera();
+    Camera(const glm::vec3& pos, 
+        const glm::vec3& worldUp,
+        float pitch,
+        float yaw);
+
+    // use glm::lookAt
+    glm::mat4 GetMatrix() const;
+
+    // Input
+    void ProcessKeyboard(Direction direction, float deltaTime);
+    void ProcessMouse(float xoffset, float yoffset);
+    void ProcessMouseScroll(float yoffset);
+
+private:
+    // Compute the Front and Right vector using the euler angles
+    void UpdateCameraRotation();
+
+    // Translation
+    glm::vec3 Position;
+
+    // Rotation - Must be normalized
+    glm::vec3 Front;
+    glm::vec3 Up;
+    glm::vec3 Right;
+    glm::vec3 WorldUp;
+
+    // Euler Angles
+    float Yaw;
+    float Pitch;
+    
+    // Camera options
+    float MovementSpeed;
+    float MouseSensitivity;
+    float Fov;
+};
+```
+
+### Step 2
+
+To process the keyboard input, we will need the delta time between two frames.
+Update the `main.cpp` file to compute the deltaTime.
+
+Then, by modifying the `processInput` function, you can send the right event to you camera class if the right input is pressed.
+
+Implement the `ProcessKeyboard` function in the `Camera` class.
+
+Here are a list of useful functions (that you will need to use):
+- glfwGetTime
+- glfwGetKey
+
+### Step 3
+
+To process the mouse event, implement the `mouse_callback` function and call the `ProcessMouse` function (that you must implement too).
+
+Do the same for the scroll callback by implementing the `scroll_callback` and the `ProcessMouseScroll` functions.
