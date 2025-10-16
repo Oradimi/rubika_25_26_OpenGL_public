@@ -738,3 +738,135 @@ Here are a list of useful functions (that you will need to use):
 To process the mouse event, implement the `mouse_callback` function and call the `ProcessMouse` function (that you must implement too).
 
 Do the same for the scroll callback by implementing the `scroll_callback` and the `ProcessMouseScroll` functions.
+
+## Threshold 6
+
+The purpose of this threshold is to implement some lights, to be more precise the Phong lighting system. 
+
+### Step 0
+
+To do so, we will simplify the all scene to work with a single unicolor cube without texture. I advice you to create a new `threshold`  so you can modify the all execution and leep your previous work (that we will use later). I advise you to do the same with the shaders you use.
+
+In this other file, setup it to be in that state:
+- Keep the camera
+- Draw a single cube (at the root of our world space) using a single color that you will pass through an uniform.
+ * your vertex must use the coordinate given by the projection, view, model and local
+ * your fragment shader must set the color using the uniform
+
+If some lights light your cube, its color will change depending on the light colors, their position, their intensity... By multiplying the color of the combinaison of lights and the object color, you will get the right color to display. Let's see different kind of lights
+
+### Step 1
+
+Let's start with the easiest one : the ambient light.
+> Even when it is dark there is usually still some light somewhere in the world (the moon, a distant light) so objects are almost never completely dark. To simulate this we use an ambient lighting constant that always gives the object some color.
+
+To do so, modify your fragment shader to use two new uniforms to compute the final color of our cube: 
+- a float which determines the ambient light intensity
+- a vec3 which determines the ambient light color
+
+As an exercise, modify the value of the intensity each frame. It must remain positive but the lower the intensity is the darker the cube will be (note that the cube will be black only if the intensity is set to 0). The bigger the intensity is, the closer the cube color will be to the light color.
+
+#### Step 2
+
+To continue, let's add diffuse light.
+> Diffuse lighting gives the object more brightness the closer its fragments are aligned to the light rays from a light source. 
+
+To determine this aligment, you are going to use the dot product between  the normal vector, which is perpendicular to the vertex's surface, and the directed light, which is the vector from the light source to the vertex.
+
+The normal vector is a new attribute of our vertices. As we did previously, do what is necessary to be able to use it in our shaders. To simplify, we have removed the color and the texture coordinate from the vertex class.
+```cpp
+Vertex vertices[] = {
+    // Pos - Color - Texture Coord - Normal
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f },
+
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
+
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f },
+
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f },
+
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f }
+};
+```
+
+
+The light position will be given through an uniform such as the light color
+```cpp
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f); 
+glm::vec3 lightColor(1.f, 1.0f, 1.0f); 
+```
+
+*If that can help you visualizing, you can create a small cube (or any other shape) at the light position which will use a dedicated shader set that draw the cube at the correct location using the light color*
+
+The directed vector now can be computed with the information we have:
+- The light position
+- The vertex position
+
+The dot product between our two vectors will give a scalar that tells us how strong the impact of the diffuse light is for this vertex. **Be careful, we want our coefficient to be positive whereas the dot product might be negative**. Use the light color to have the real impact of the light. You can now add this color to the colof that you got from the ambient light.
+
+**If you use non uniform scaling, you might have trouble with your normal, so don't use that for the rest of the project**
+
+### Step 3
+
+Finally, let's add specular lights.
+> Similar to diffuse lighting, specular lighting is based on the light's direction vector and the object's normal vectors, but this time it is also based on the view direction e.g. from what direction the player is looking at the fragment. Specular lighting is based on the reflective properties of surfaces. If we think of the object's surface as a mirror, the specular lighting is the strongest wherever we would see the light reflected on the surface. SUch as
+![img](https://learnopengl.com/img/lighting/basic_lighting_specular_theory.png)
+
+This one might be more tricky (more mathematical), so we are going to do it step by step.
+
+First thing we need to do is to pass the camera position to our shader using uniform. At the same time and as we did before, pass the specular light color and the specular light intensity to the shaders.
+
+Then, compute the view direction vector (between the camera position and the vertex position).
+
+To compute, the reflection vector use this line
+```glsl
+vec3 reflectionDir = reflect(-lightDir, normal);  
+```
+where light direction is the vector between the light position and the vertex position.
+
+Finally, the specular coefficient can be retrieve using this formula
+```glsl
+float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+```
+
+With that coefficient, the specular intensity and the light color, you can retrieve the color of the specular light and add it to the ambient color and the diffuse color you have computed earlier.
+
+*The 32 in the formula above is the shininess value of the material. We will see it later*
+
+### Step 4
+
+With this three lights, we have implemented the Phong system. It is now time to play a bit with it. As an exercise:
+- Modify the intensity of one light or another, the position of the lights, the color... over time to see the all scene lives
+- Update the value of shininess in the fragment shader as a transition to the next threshold
