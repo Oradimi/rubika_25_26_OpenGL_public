@@ -21,6 +21,7 @@
     </Filter>
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{2b9fd1c9-caa8-4df0-bccb-dc4131cdb6d3}</UniqueIdentifier>
+      <Extensions>glsl</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
