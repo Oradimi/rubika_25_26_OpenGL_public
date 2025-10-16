@@ -5,9 +5,11 @@ This is the repository used by the **OpenGL** lesson.
 1. [Threshold 0](#threshold-0)
 2. [Threshold 1](#threshold-1)
 3. [Threshold 2](#threshold-2)
-3. [Threshold 3](#threshold-3)
-3. [Threshold 4](#threshold-4)
-3. [Threshold 5](#threshold-5)
+4. [Threshold 3](#threshold-3)
+5. [Threshold 4](#threshold-4)
+6. [Threshold 5](#threshold-5)
+7. [Threshold 6](#threshold-6)
+8. [Threshold 7](#threshold-7)
 
 ## Threshold 0
 
@@ -776,48 +778,48 @@ To determine this aligment, you are going to use the dot product between  the no
 The normal vector is a new attribute of our vertices. As we did previously, do what is necessary to be able to use it in our shaders. To simplify, we have removed the color and the texture coordinate from the vertex class.
 ```cpp
 Vertex vertices[] = {
-    // Pos - Color - Texture Coord - Normal
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f },
-    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f },
-    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f },
-    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f },
-    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f },
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f },
+    // Pos - Normal
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
 
-    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
-    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
-    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
 
-    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
-    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f },
-    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
 
-    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f },
-    { 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f,  0.0f },
-    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f,  0.0f },
-    { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f,  0.0f },
-    { 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f },
-    { 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
 
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f },
-    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f,  0.0f },
-    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  0.0f },
-    {  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  0.0f },
-    { -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,  0.0f },
-    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
 
-    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f },
-    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  1.0f,  0.0f },
-    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f },
-    {  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f },
-    { -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f,  0.0f },
-    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f }
+    { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f }
 };
 ```
 
@@ -870,3 +872,99 @@ With that coefficient, the specular intensity and the light color, you can retri
 With this three lights, we have implemented the Phong system. It is now time to play a bit with it. As an exercise:
 - Modify the intensity of one light or another, the position of the lights, the color... over time to see the all scene lives
 - Update the value of shininess in the fragment shader as a transition to the next threshold
+
+## Threshold 7
+
+The purpose of this threshold is to implement material
+
+### Step 0
+
+In the real world, each object has a different reaction to light. We talked about shininess last threshold but in a more general, each type of light will interact in its own way with an object. All those properties can be gather in a Material.
+
+Create a `Material` class
+```cpp
+class Material
+{
+public:
+    Material(
+        const glm::vec3& ambient,
+        const glm::vec3& diffuse,
+        const glm::vec3& specular,
+        float shininess
+    )
+
+    void Use(Shader& shader) const;
+
+private:
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Specular;
+    float Shininess;
+};
+```
+
+Such as the other `Use` function that we have implemented, this one will also set uniform in our program. However, it will make it as struct.
+
+Let's create a struct in our fragment shader
+```glsl
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+}; 
+  
+uniform Material material;
+```
+
+To set, the initialise a struct using uniform, you have to set each of its members in the same way you set uniform, but by specifying which member you are targeting such as : `material.ambient`.
+
+Create few instance of `Material` using this [table](http://devernay.free.fr/cours/opengl/materials.html).
+
+### Step 1
+
+Now our material properties have been passed to the fragment shader, let's use them.
+Replace the shininess value by the one given by the material. For the others values, multiply the final color of each light by the material ones.
+
+Pick one of the material instance you made and apply it to the cube you are drawing.
+
+### Step 2
+
+Light also has properties. So, in the same way we did for `Material`, create a `Light` class to gather all our properties.
+```cpp
+class Light
+{
+public:
+    Light(); // white light at 0.0.0
+    Light(
+        const glm::vec3& position,
+        const glm::vec3& ambient,
+        float ambientIntensity,
+        const glm::vec3& diffuse,
+        float diffuseIntensity,
+        const glm::vec3& scalar,
+        float scalarIntensity
+    );
+
+    void Use(Shader& shader);
+
+private:
+    glm::vec3 Position;
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Scalar;
+};
+```
+In the same way you change the fragment shader to use the `Material` struct, modify it once again to use the `Light` struct.
+
+### Step 3
+
+Time to play with this new properties. Make a first test with those values
+- Ambient Intensity : 0.2f
+- Diffuse Intensity : 0.5f
+- Scalar Intensity : 1.f
+- Lights color : 1.f, 1.f, 1.f
+
+As an exercise:
+- Modify the position of the light each frame using time
+- Modify the intensity, colors... each frame using time
