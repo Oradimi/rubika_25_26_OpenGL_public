@@ -968,3 +968,14 @@ Time to play with this new properties. Make a first test with those values
 As an exercise:
 - Modify the position of the light each frame using time
 - Modify the intensity, colors... each frame using time
+
+## Threshold 8
+
+Going further - The purpose of this threshold is to gather everything we made, textures and lights.
+
+Modify the `Material` class (and structure in the shader) to notonly  use vec3 for the Diffuse and the Specular color (you can remove the ambient one and replace it by the diffuse one) but also textures. One for the diffuse and one for the specular.
+
+At the moment you want a `Material` we must also use the `Texture` as we did it in a previous threshold.
+Then, modify the fragment shader to use both those textures, that can be modify by the diffuse and specular color defined in the `Material`
+
+You can use the `container2_diffuse.png` and the `container2_specular.png` texture to test.
