@@ -5,9 +5,11 @@ This is the repository used by the **OpenGL** lesson.
 1. [Threshold 0](#threshold-0)
 2. [Threshold 1](#threshold-1)
 3. [Threshold 2](#threshold-2)
-3. [Threshold 3](#threshold-3)
-3. [Threshold 4](#threshold-4)
-3. [Threshold 5](#threshold-5)
+4. [Threshold 3](#threshold-3)
+5. [Threshold 4](#threshold-4)
+6. [Threshold 5](#threshold-5)
+7. [Threshold 6](#threshold-6)
+8. [Threshold 7](#threshold-7)
 
 ## Threshold 0
 
@@ -738,3 +740,242 @@ Here are a list of useful functions (that you will need to use):
 To process the mouse event, implement the `mouse_callback` function and call the `ProcessMouse` function (that you must implement too).
 
 Do the same for the scroll callback by implementing the `scroll_callback` and the `ProcessMouseScroll` functions.
+
+## Threshold 6
+
+The purpose of this threshold is to implement some lights, to be more precise the Phong lighting system. 
+
+### Step 0
+
+To do so, we will simplify the all scene to work with a single unicolor cube without texture. I advice you to create a new `threshold`  so you can modify the all execution and leep your previous work (that we will use later). I advise you to do the same with the shaders you use.
+
+In this other file, setup it to be in that state:
+- Keep the camera
+- Draw a single cube (at the root of our world space) using a single color that you will pass through an uniform.
+ * your vertex must use the coordinate given by the projection, view, model and local
+ * your fragment shader must set the color using the uniform
+
+If some lights light your cube, its color will change depending on the light colors, their position, their intensity... By multiplying the color of the combinaison of lights and the object color, you will get the right color to display. Let's see different kind of lights
+
+### Step 1
+
+Let's start with the easiest one : the ambient light.
+> Even when it is dark there is usually still some light somewhere in the world (the moon, a distant light) so objects are almost never completely dark. To simulate this we use an ambient lighting constant that always gives the object some color.
+
+To do so, modify your fragment shader to use two new uniforms to compute the final color of our cube: 
+- a float which determines the ambient light intensity
+- a vec3 which determines the ambient light color
+
+As an exercise, modify the value of the intensity each frame. It must remain positive but the lower the intensity is the darker the cube will be (note that the cube will be black only if the intensity is set to 0). The bigger the intensity is, the closer the cube color will be to the light color.
+
+#### Step 2
+
+To continue, let's add diffuse light.
+> Diffuse lighting gives the object more brightness the closer its fragments are aligned to the light rays from a light source. 
+
+To determine this aligment, you are going to use the dot product between  the normal vector, which is perpendicular to the vertex's surface, and the directed light, which is the vector from the light source to the vertex.
+
+The normal vector is a new attribute of our vertices. As we did previously, do what is necessary to be able to use it in our shaders. To simplify, we have removed the color and the texture coordinate from the vertex class.
+```cpp
+Vertex vertices[] = {
+    // Pos - Normal
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+    { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+
+    { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+
+    { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+    { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+
+    { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
+    { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+
+    { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
+    { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f }
+};
+```
+
+
+The light position will be given through an uniform such as the light color
+```cpp
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f); 
+glm::vec3 lightColor(1.f, 1.0f, 1.0f); 
+```
+
+*If that can help you visualizing, you can create a small cube (or any other shape) at the light position which will use a dedicated shader set that draw the cube at the correct location using the light color*
+
+The directed vector now can be computed with the information we have:
+- The light position
+- The vertex position
+
+The dot product between our two vectors will give a scalar that tells us how strong the impact of the diffuse light is for this vertex. **Be careful, we want our coefficient to be positive whereas the dot product might be negative**. Use the light color to have the real impact of the light. You can now add this color to the colof that you got from the ambient light.
+
+**If you use non uniform scaling, you might have trouble with your normal, so don't use that for the rest of the project**
+
+### Step 3
+
+Finally, let's add specular lights.
+> Similar to diffuse lighting, specular lighting is based on the light's direction vector and the object's normal vectors, but this time it is also based on the view direction e.g. from what direction the player is looking at the fragment. Specular lighting is based on the reflective properties of surfaces. If we think of the object's surface as a mirror, the specular lighting is the strongest wherever we would see the light reflected on the surface. SUch as
+![img](https://learnopengl.com/img/lighting/basic_lighting_specular_theory.png)
+
+This one might be more tricky (more mathematical), so we are going to do it step by step.
+
+First thing we need to do is to pass the camera position to our shader using uniform. At the same time and as we did before, pass the specular light color and the specular light intensity to the shaders.
+
+Then, compute the view direction vector (between the camera position and the vertex position).
+
+To compute, the reflection vector use this line
+```glsl
+vec3 reflectionDir = reflect(-lightDir, normal);  
+```
+where light direction is the vector between the light position and the vertex position.
+
+Finally, the specular coefficient can be retrieve using this formula
+```glsl
+float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+```
+
+With that coefficient, the specular intensity and the light color, you can retrieve the color of the specular light and add it to the ambient color and the diffuse color you have computed earlier.
+
+*The 32 in the formula above is the shininess value of the material. We will see it later*
+
+### Step 4
+
+With this three lights, we have implemented the Phong system. It is now time to play a bit with it. As an exercise:
+- Modify the intensity of one light or another, the position of the lights, the color... over time to see the all scene lives
+- Update the value of shininess in the fragment shader as a transition to the next threshold
+
+## Threshold 7
+
+The purpose of this threshold is to implement material
+
+### Step 0
+
+In the real world, each object has a different reaction to light. We talked about shininess last threshold but in a more general, each type of light will interact in its own way with an object. All those properties can be gather in a Material.
+
+Create a `Material` class
+```cpp
+class Material
+{
+public:
+    Material(
+        const glm::vec3& ambient,
+        const glm::vec3& diffuse,
+        const glm::vec3& specular,
+        float shininess
+    )
+
+    void Use(Shader& shader) const;
+
+private:
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Specular;
+    float Shininess;
+};
+```
+
+Such as the other `Use` function that we have implemented, this one will also set uniform in our program. However, it will make it as struct.
+
+Let's create a struct in our fragment shader
+```glsl
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+}; 
+  
+uniform Material material;
+```
+
+To set, the initialise a struct using uniform, you have to set each of its members in the same way you set uniform, but by specifying which member you are targeting such as : `material.ambient`.
+
+Create few instance of `Material` using this [table](http://devernay.free.fr/cours/opengl/materials.html).
+
+### Step 1
+
+Now our material properties have been passed to the fragment shader, let's use them.
+Replace the shininess value by the one given by the material. For the others values, multiply the final color of each light by the material ones.
+
+Pick one of the material instance you made and apply it to the cube you are drawing.
+
+### Step 2
+
+Light also has properties. So, in the same way we did for `Material`, create a `Light` class to gather all our properties.
+```cpp
+class Light
+{
+public:
+    Light(); // white light at 0.0.0
+    Light(
+        const glm::vec3& position,
+        const glm::vec3& ambient,
+        float ambientIntensity,
+        const glm::vec3& diffuse,
+        float diffuseIntensity,
+        const glm::vec3& scalar,
+        float scalarIntensity
+    );
+
+    void Use(Shader& shader);
+
+private:
+    glm::vec3 Position;
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Scalar;
+};
+```
+In the same way you change the fragment shader to use the `Material` struct, modify it once again to use the `Light` struct.
+
+### Step 3
+
+Time to play with this new properties. Make a first test with those values
+- Ambient Intensity : 0.2f
+- Diffuse Intensity : 0.5f
+- Scalar Intensity : 1.f
+- Lights color : 1.f, 1.f, 1.f
+
+As an exercise:
+- Modify the position of the light each frame using time
+- Modify the intensity, colors... each frame using time
+
+## Threshold 8
+
+Going further - The purpose of this threshold is to gather everything we made, textures and lights.
+
+Modify the `Material` class (and structure in the shader) to notonly  use vec3 for the Diffuse and the Specular color (you can remove the ambient one and replace it by the diffuse one) but also textures. One for the diffuse and one for the specular.
+
+At the moment you want a `Material` we must also use the `Texture` as we did it in a previous threshold.
+Then, modify the fragment shader to use both those textures, that can be modify by the diffuse and specular color defined in the `Material`
+
+You can use the `container2_diffuse.png` and the `container2_specular.png` texture to test.
