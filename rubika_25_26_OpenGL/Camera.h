@@ -27,6 +27,8 @@ public:
 
     float GetFov() const;
 
+    glm::vec3 Pos() const;
+
     // Input
     void ProcessKeyboard(Direction direction, float deltaTime);
     void ProcessMouse(float xoffset, float yoffset);

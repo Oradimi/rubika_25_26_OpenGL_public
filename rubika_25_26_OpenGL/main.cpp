@@ -22,7 +22,8 @@ const unsigned int SCR_HEIGHT = 600;
 float deltaTime = 1.f / 30.f;
 
 Camera camera;
-float lastXPos, lastYPos;
+float lastXPos = -9999999.f;
+float lastYPos = -9999999.f;
 
 int main()
 {
@@ -112,6 +113,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    if (lastXPos < -9999998.f || lastYPos < -9999998.f) {
+        lastXPos = xpos;
+        lastYPos = ypos;
+    }
+
     camera.ProcessMouse(xpos - lastXPos, ypos - lastYPos);
     lastXPos = xpos;
     lastYPos = ypos;
