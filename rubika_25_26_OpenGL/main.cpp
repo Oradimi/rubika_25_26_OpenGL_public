@@ -19,6 +19,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+float deltaTime = 1.f / 30.f;
+
+Camera camera;
+float lastXPos, lastYPos;
+
 int main()
 {
     glfwInit();
@@ -50,6 +55,8 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        float startTime = glfwGetTime();
+
         processInput(window);
 
         update();
@@ -57,10 +64,12 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        draw();
+        draw(camera);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        deltaTime = glfwGetTime() - startTime;
     }
 
     destroy();
@@ -74,6 +83,26 @@ void processInput(GLFWwindow* window)
     {
         glfwSetWindowShouldClose(window, true);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Forward, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Left, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Backward, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Right, deltaTime);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -83,10 +112,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-
+    camera.ProcessMouse(xpos - lastXPos, ypos - lastYPos);
+    lastXPos = xpos;
+    lastYPos = ypos;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-
+    camera.ProcessMouseScroll(yoffset);
 }
