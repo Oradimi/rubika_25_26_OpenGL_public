@@ -15,52 +15,52 @@ namespace threshold
 	GLuint ebo{};
 	Vertex vertices[] = {
 		// Pos - Normal
-		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
-		{  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
-		{  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
-		{  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
-		{ -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
-		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f },
+		{  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f },
+		{  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f },
+		{  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f },
+		{ -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f },
 
-		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
-		{  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
-		{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
-		{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
-		{ -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
-		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f },
+		{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
+		{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
+		{ -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
 
-		{ -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
-		{ -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
-		{ -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
-		{ -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f },
-		{ -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
-		{ -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f },
+		{ -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
+		{ -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f },
+		{ -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
+		{ -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f },
+		{ -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
 
-		{ 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
-		{ 0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
-		{ 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
-		{ 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f },
-		{ 0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
-		{ 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f },
+		{ 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
+		{ 0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 0.0f },
+		{ 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
+		{ 0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 1.0f },
+		{ 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
 
-		{ -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
-		{  0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
-		{  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
-		{  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
-		{ -0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f },
-		{ -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f },
+		{  0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f },
+		{  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 1.0f },
+		{  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 1.0f },
+		{ -0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f },
 
-		{ -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
-		{  0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f },
-		{  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
-		{  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
-		{ -0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f },
-		{ -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f }
+		{ -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f },
+		{  0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f },
+		{  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f },
+		{  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f },
+		{ -0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 1.0f },
+		{ -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f }
 	};
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(1.2f,  1.0f,  -2.0f),
+		glm::vec3(1.0f,  1.0f, -1.0f),
 	};
 
 	unsigned int indices[] = {
@@ -71,16 +71,18 @@ namespace threshold
 	const int vertexCount = 36;
 
 	Shader shader;
-	Texture texture0;
-	Texture texture1;
+	Texture textureDiffuse;
+	Texture textureSpecular;
+
+	Material container2{ textureDiffuse, textureSpecular };
 
 	Material greenPlastic{ glm::vec3(0.f), glm::vec3(0.1f, 0.35f, 0.1f), glm::vec3(0.45f, 0.55f, 0.45f), 0.25f };
 	Material cyanPlastic{ glm::vec3(0.f, 0.1f, 0.06f), glm::vec3(0.0f, 0.50980392f, 0.50980392f), glm::vec3(0.50196078f, 0.50196078f, 0.50196078f), 0.25f };
 	Material pearl{ glm::vec3(0.25f, 0.20725f, 0.20725f), glm::vec3(1.0f, 0.829f, 0.829f), glm::vec3(0.296648f, 0.296648f, 0.296648f), 0.088f };
 
-	Light light{ glm::vec3(1.2f, 1.0f, -2.0f),
-		glm::vec3(1.f), 0.2f,
-		glm::vec3(1.f), 0.5f,
+	Light light{ glm::vec3(1.0f, 1.0f, -1.0f),
+		glm::vec3(1.f), 1.0f,
+		glm::vec3(1.f), 1.0f,
 		glm::vec3(1.f), 1.0f
 	};
 
@@ -121,16 +123,16 @@ namespace threshold
 		//glVertexAttribPointer(vertex_attr_color, 3, GL_FLOAT, GL_FALSE,
 		//	sizeof(Vertex),
 		//	(const GLvoid*)offsetof(Vertex, color));
-		//glVertexAttribPointer(vertex_attr_texCoord, 2, GL_FLOAT, GL_FALSE,
-		//	sizeof(Vertex),
-		//	(const GLvoid*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(vertex_attr_texCoord, 2, GL_FLOAT, GL_FALSE,
+			sizeof(Vertex),
+			(const GLvoid*)offsetof(Vertex, texCoord));
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
 		shader.Init(vertexPath, fragmentPath);
-		//texture0.Init("../Resources/container.jpg");
-		//texture1.Init("../Resources/awesomeface.png");
+		textureDiffuse.Init("../Resources/container2_diffuse.png");
+		textureSpecular.Init("../Resources/container2_specular.png");
 
 		glEnable(GL_DEPTH_TEST);
 		glCullFace(GL_BACK);
@@ -182,7 +184,10 @@ namespace threshold
 			GLint location = glGetUniformLocation(shader.Get(), "viewPos");
 			glUniform3f(location, camera.Pos().x, camera.Pos().y, camera.Pos().z);
 
-			cyanPlastic.Use(shader);
+			textureDiffuse.Use(shader.Get(), "textureDiffuse", 0);
+			textureSpecular.Use(shader.Get(), "textureSpecular", 1);
+
+			container2.Use(shader);
 			light.Use(shader);
 
 			//location = glGetUniformLocation(shader.Get(), "uShininess");
@@ -192,8 +197,6 @@ namespace threshold
 			shader.SetMatrix("uMVPMatrix", projMatrix * viewMatrix * modelMatrix);
 			shader.SetMatrix("uModelMatrix", modelMatrix);
 			shader.Use();
-			//texture0.Use(shader.Get(), "texture0", 0);
-			//texture1.Use(shader.Get(), "texture1", 1);
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 			//glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, NULL);

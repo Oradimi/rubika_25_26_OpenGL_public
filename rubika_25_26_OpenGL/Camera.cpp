@@ -60,6 +60,12 @@ void Camera::ProcessKeyboard(Direction direction, float deltaTime)
     case Direction::Right:
         Position -= deltaTime * Right;
         break;
+    case Direction::Up:
+        Position += deltaTime * WorldUp;
+        break;
+    case Direction::Down:
+        Position -= deltaTime * WorldUp;
+        break;
     }
 }
 

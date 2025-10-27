@@ -8,8 +8,8 @@ in vec3 vNormal;
 out vec4 FragColor;
 
 uniform float time;
-uniform sampler2D texture0;
-uniform sampler2D texture1;
+uniform sampler2D textureDiffuse;
+uniform sampler2D textureSpecular;
 
 uniform float ambiantLightIntensity;
 uniform vec3 ambiantLightColor;
@@ -42,10 +42,8 @@ uniform Light light;
 void main()
 {
 	//vec4 color = vec4(vColor * time, 1.0);
-	//vec4 colorTexture0 = texture(texture0, vTexCoord);
-	//vec4 colorTexture1 = texture(texture1, vTexCoord);
-	//FragColor = mix(colorTexture0, colorTexture1, 0.5) * color;
-	//FragColor = mix(colorTexture0, colorTexture1, 0.5);
+	vec4 colorTextureDiffuse = texture(textureDiffuse, vTexCoord);
+	vec4 colorTextureSpecular = texture(textureSpecular, vTexCoord);
 
 	
 
@@ -78,10 +76,11 @@ void main()
     float specularTerm = pow(max(dot(nViewPosToPosition_vs, reflectionDir), 0.0), material.shininess * 128.0);
     vec3 specularColor = material.specular * specularTerm * light.scalar;
 
-    float attenuation = 1.0 / (distanceLightFragment * distanceLightFragment);
+    //float attenuation = 1.0 / (distanceLightFragment * distanceLightFragment);
     
-    totalLight += 1.0 * attenuation * (diffuseColor + specularColor + material.ambient * light.ambient);
+    totalLight += colorTextureDiffuse.xyz * diffuseColor + colorTextureSpecular.xyz * specularColor + colorTextureDiffuse.xyz * material.ambient * light.ambient;
 
 
 	FragColor = vec4(totalLight, 1.0);
+	//FragColor = mix(colorTextureDiffuse, colorTextureSpecular, 0.5);
 };

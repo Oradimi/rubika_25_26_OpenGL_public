@@ -1,5 +1,19 @@
 #include "Shader.h"
+#include "Texture.h"
 #include "Material.h"
+
+Material::Material(
+    Texture& diffuseTexture,
+    Texture& specularTexture,
+    const glm::vec3& ambient,
+    const glm::vec3& diffuse,
+    const glm::vec3& specular,
+    float shininess
+) : DiffuseTexture(&diffuseTexture), SpecularTexture(&specularTexture),
+Ambient(ambient), Diffuse(diffuse), Specular(specular), Shininess(shininess)
+{
+
+}
 
 Material::Material(
     const glm::vec3& ambient,

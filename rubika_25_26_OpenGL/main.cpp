@@ -104,6 +104,16 @@ void processInput(GLFWwindow* window)
     {
         camera.ProcessKeyboard(Camera::Direction::Right, deltaTime);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Up, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        camera.ProcessKeyboard(Camera::Direction::Down, deltaTime);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
