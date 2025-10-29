@@ -41,27 +41,27 @@ uniform Light light;
 
 void main()
 {
-	//vec4 color = vec4(vColor * time, 1.0);
-	vec4 colorTextureDiffuse = texture(textureDiffuse, vTexCoord);
-	vec4 colorTextureSpecular = texture(textureSpecular, vTexCoord);
+    //vec4 color = vec4(vColor * time, 1.0);
+    vec4 colorTextureDiffuse = texture(textureDiffuse, vTexCoord);
+    vec4 colorTextureSpecular = texture(textureSpecular, vTexCoord);
 
-	
+    
 
     // WORLD LIGHT
     //vec3 nLightDir_vs = normalize(lightDir);
 
-	//float diffuseTerm = max(dot(nLightDir_vs, nNormal_vs), 0.0);
+    //float diffuseTerm = max(dot(nLightDir_vs, nNormal_vs), 0.0);
     //vec3 diffuseColor = uKd * diffuseTerm;
 
-	//float specularTerm = pow(max(dot(nNormal_vs, halfwayVector), 0.0), uShininess);
+    //float specularTerm = pow(max(dot(nNormal_vs, halfwayVector), 0.0), uShininess);
     //vec3 specularColor = uKs * specularTerm;
 
-	//totalLight += ambiantLightIntensity * (ambiantLightColor + specularColor);
+    //totalLight += ambiantLightIntensity * (ambiantLightColor + specularColor);
 
     vec3 totalLight = vec3(0.0);
 
     // POINT LIGHT
-	float distanceLightFragment = distance(light.position, vPos);
+    float distanceLightFragment = distance(light.position, vPos);
     vec3 nLightPosToPosition_vs = normalize(light.position - vPos);
     vec3 nViewPosToPosition_vs = normalize(viewPos - vPos);
     vec3 nNormal_vs = normalize(vNormal);
@@ -81,6 +81,6 @@ void main()
     totalLight += colorTextureDiffuse.xyz * diffuseColor + colorTextureSpecular.xyz * specularColor + colorTextureDiffuse.xyz * material.ambient * light.ambient;
 
 
-	FragColor = vec4(totalLight, 1.0);
-	//FragColor = mix(colorTextureDiffuse, colorTextureSpecular, 0.5);
+    FragColor = vec4(totalLight, 1.0);
+    //FragColor = mix(colorTextureDiffuse, colorTextureSpecular, 0.5);
 };

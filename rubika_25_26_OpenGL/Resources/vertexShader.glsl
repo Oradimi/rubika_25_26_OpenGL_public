@@ -15,9 +15,9 @@ uniform mat4 uModelMatrix;
 
 void main()
 {
-	gl_Position = uMVPMatrix * vec4(aPos, 1.0);
-	vPos = (uModelMatrix * vec4(aPos, 1.0)).xyz;
-	vColor = aColor;
-	vTexCoord = aTexCoord;
-	vNormal = normalize(uModelMatrix * vec4(aNormal, 1.0)).xyz;
+    gl_Position = uMVPMatrix * vec4(aPos, 1.0);
+    vPos = (uModelMatrix * vec4(aPos, 1.0)).xyz;
+    vColor = aColor;
+    vTexCoord = aTexCoord;
+    vNormal = normalize(uModelMatrix * vec4(aNormal, 1.0)).xyz;
 };
