@@ -33,6 +33,7 @@ public:
 
     // Input
     void ProcessKeyboard(Direction direction, float deltaTime);
+    void ProcessKeyboard(int key, int pressed, float deltaTime);
     void ProcessMouse(float xoffset, float yoffset);
     void ProcessMouseScroll(float yoffset);
 
@@ -52,6 +53,9 @@ private:
     // Euler Angles
     float Yaw;
     float Pitch;
+
+    // Camera states
+    bool SpeedUp;
 
     // Camera options
     float MovementSpeed;

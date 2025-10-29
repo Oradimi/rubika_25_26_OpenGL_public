@@ -1,9 +1,10 @@
 #include "Camera.h"
+#include <glfw/glfw3.h>
 
 #define M_PI 3.14159265358979323846264338327950288f
 
 Camera::Camera() : Position(glm::vec3(0.f, 1.f, -3.f)), WorldUp(glm::vec3(0.f, 1.f, 0.f)),
-Pitch(0.f), Yaw(0.f), MovementSpeed(10.f), MouseSensitivity(1.f), Fov(70.f),
+SpeedUp(false), Pitch(0.f), Yaw(0.f), MovementSpeed(1.f), MouseSensitivity(1.f), Fov(70.f),
 Front(std::cosf(Pitch) * std::sinf(Yaw), std::sinf(Pitch),
                      std::cosf(Pitch)* std::cosf(Yaw)),
 Right(std::sinf(Yaw + M_PI / 2.f), 0.f,
@@ -16,8 +17,9 @@ Up(glm::cross(Front, Right))
 Camera::Camera(const glm::vec3& pos,
     const glm::vec3& worldUp,
     float pitch,
-    float yaw) : Position(pos), WorldUp(worldUp), Pitch(pitch), Yaw(yaw),
-    MovementSpeed(10.f), MouseSensitivity(1.f), Fov(45.f),
+    float yaw) : Position(pos), WorldUp(worldUp),
+    SpeedUp(false), Pitch(pitch), Yaw(yaw),
+    MovementSpeed(1.f), MouseSensitivity(1.f), Fov(45.f),
     Front(std::cosf(Pitch)* std::sinf(Yaw), std::sinf(Pitch),
         std::cosf(Pitch)* std::cosf(Yaw)),
     Right(std::sinf(Yaw + M_PI / 2.f), 0.f,
@@ -46,25 +48,37 @@ glm::vec3 Camera::Pos() const
 // Input
 void Camera::ProcessKeyboard(Direction direction, float deltaTime)
 {
+    float processedSpeedDelta = deltaTime * (SpeedUp ? MovementSpeed * 5.f : MovementSpeed);
+
     switch (direction)
     {
     case Direction::Forward:
-        Position += deltaTime * Front;
+        Position += processedSpeedDelta * Front;
         break;
     case Direction::Left:
-        Position += deltaTime * Right;
+        Position += processedSpeedDelta * Right;
         break;
     case Direction::Backward:
-        Position -= deltaTime * Front;
+        Position -= processedSpeedDelta * Front;
         break;
     case Direction::Right:
-        Position -= deltaTime * Right;
+        Position -= processedSpeedDelta * Right;
         break;
     case Direction::Up:
-        Position += deltaTime * WorldUp;
+        Position += processedSpeedDelta * WorldUp;
         break;
     case Direction::Down:
-        Position -= deltaTime * WorldUp;
+        Position -= processedSpeedDelta * WorldUp;
+        break;
+    }
+}
+
+void Camera::ProcessKeyboard(int key, int pressed, float deltaTime)
+{
+    switch (key)
+    {
+    case GLFW_KEY_LEFT_SHIFT:
+        SpeedUp = pressed;
         break;
     }
 }
