@@ -14,48 +14,41 @@ namespace threshold
     GLuint vao{};
     GLuint ebo{};
     Vertex vertices[] = {
-        // Pos - Normal
-        { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f },
-        {  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f },
-        {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f },
-        {  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f },
-        { -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f },
-        { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f },
+        // Front face (Z+)
+        {{-0.5f, -0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 0
+        {{0.5f, -0.5f,  0.5f},  {0.0f,  0.0f,  1.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 1
+        {{0.5f,  0.5f,  0.5f},  {0.0f,  0.0f,  1.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 2
+        {{-0.5f,  0.5f,  0.5f}, {0.0f,  0.0f,  1.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 3
 
-        { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-        {  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f },
-        {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
-        {  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
-        { -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-        { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+        // Back face (Z-)
+        {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 4
+        {{0.5f, -0.5f, -0.5f},  {0.0f,  0.0f, -1.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 5
+        {{0.5f,  0.5f, -0.5f},  {0.0f,  0.0f, -1.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 6
+        {{-0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 7
 
-        { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
-        { -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f },
-        { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
-        { -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
-        { -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f },
-        { -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
+        // Left face (X-)
+        {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 8
+        {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 9
+        {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 10
+        {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 11
 
-        { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
-        { 0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 0.0f },
-        { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
-        { 0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 1.0f },
-        { 0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 1.0f },
-        { 0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f },
+        // Right face (X+)
+        {{0.5f, -0.5f, -0.5f},  {1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 12
+        {{0.5f, -0.5f,  0.5f},  {1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 13
+        {{0.5f,  0.5f,  0.5f},  {1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 14
+        {{0.5f,  0.5f, -0.5f},  {1.0f,  0.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 15
 
-        { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f },
-        {  0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f },
-        {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 1.0f },
-        {  0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 1.0f },
-        { -0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 1.0f },
-        { -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f },
+        // Bottom face (Y-)
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 16
+        {{0.5f, -0.5f, -0.5f},  {0.0f, -1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 17
+        {{0.5f, -0.5f,  0.5f},  {0.0f, -1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 18
+        {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 19
 
-        { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f },
-        {  0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f },
-        {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f },
-        {  0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f },
-        { -0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 1.0f },
-        { -0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f }
+        // Top face (Y+)
+        {{-0.5f,  0.5f, -0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}}, // 20
+        {{0.5f,  0.5f, -0.5f},  {0.0f,  1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}}, // 21
+        {{0.5f,  0.5f,  0.5f},  {0.0f,  1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}}, // 22
+        {{-0.5f,  0.5f,  0.5f}, {0.0f,  1.0f,  0.0f}, {1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}}, // 23
     };
 
     glm::vec3 cubePositions[] = {
@@ -64,8 +57,29 @@ namespace threshold
     };
 
     unsigned int indices[] = {
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
+        // Front face
+        0, 1, 2,
+        2, 3, 0,
+
+        // Back face
+        4, 5, 6,
+        6, 7, 4,
+
+        // Left face
+        8, 9, 10,
+        10, 11, 8,
+
+        // Right face
+        12, 13, 14,
+        14, 15, 12,
+
+        // Bottom face
+        16, 17, 18,
+        18, 19, 16,
+
+        // Top face
+        20, 21, 22,
+        22, 23, 20
     };
 
     const int vertexCount = 36;
@@ -100,18 +114,18 @@ namespace threshold
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
-        //glGenBuffers(1, &ebo);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexCount * sizeof(Vertex), indices, GL_STATIC_DRAW);
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexCount * sizeof(Vertex), indices, GL_STATIC_DRAW);
 
         static constexpr GLuint vertex_attr_position = 0;
-        static constexpr GLuint vertex_attr_color = 1;
-        static constexpr GLuint vertex_attr_texCoord = 2;
-        static constexpr GLuint vertex_attr_normal = 3;
+        static constexpr GLuint vertex_attr_normal = 1;
+        static constexpr GLuint vertex_attr_color = 2;
+        static constexpr GLuint vertex_attr_texCoord = 3;
         glEnableVertexAttribArray(vertex_attr_position);
+        glEnableVertexAttribArray(vertex_attr_normal);
         glEnableVertexAttribArray(vertex_attr_color);
         glEnableVertexAttribArray(vertex_attr_texCoord);
-        glEnableVertexAttribArray(vertex_attr_normal);
 
         glVertexAttribPointer(vertex_attr_position, 3, GL_FLOAT, GL_FALSE,
             sizeof(Vertex),
@@ -119,9 +133,9 @@ namespace threshold
         glVertexAttribPointer(vertex_attr_normal, 3, GL_FLOAT, GL_FALSE,
             sizeof(Vertex),
             (const GLvoid*)offsetof(Vertex, normal));
-        //glVertexAttribPointer(vertex_attr_color, 3, GL_FLOAT, GL_FALSE,
-        //    sizeof(Vertex),
-        //    (const GLvoid*)offsetof(Vertex, color));
+        glVertexAttribPointer(vertex_attr_color, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Vertex),
+            (const GLvoid*)offsetof(Vertex, color));
         glVertexAttribPointer(vertex_attr_texCoord, 2, GL_FLOAT, GL_FALSE,
             sizeof(Vertex),
             (const GLvoid*)offsetof(Vertex, texCoord));
@@ -156,25 +170,12 @@ namespace threshold
             glm::mat4 projMatrix =
                 glm::perspective(glm::radians(camera.GetFov()), 4.f / 3.f, 0.1f, 100.f);
             glm::mat4 modelMatrix = glm::mat4(1.f);
-            //modelMatrix = glm::rotate(modelMatrix, glm::radians(-55.0f), glm::vec3(0.0, 1.0, 0.0));
 
             modelMatrix = glm::translate(modelMatrix, cubePosition);
-            //modelMatrix = glm::rotate(modelMatrix, time * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
             
             if (lightPass) {
                 modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
             }
-            
-            //modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f) * std::sinf(time / 10.0), glm::vec3(0.0, 0.0, 1.0));
-            //modelMatrix = glm::scale(modelMatrix, glm::vec3(1.0) * std::sinf(time / 10.0));
-            //GLint location = glGetUniformLocation(shader.Get(), "ambiantLightColor");
-            //glUniform3f(location, 1.0f, 0.1f, 0.1f);
-
-            //location = glGetUniformLocation(shader.Get(), "ambiantLightIntensity");
-            //glUniform1f(location, std::abs(std::sinf(time)));
-
-            //location = glGetUniformLocation(shader.Get(), "lightColor");
-            //glUniform3f(location, lightColor.x, lightColor.y, lightColor.z);
 
             GLint location = glGetUniformLocation(shader.Get(), "viewPos");
             glUniform3f(location, camera.Pos().x, camera.Pos().y, camera.Pos().z);
@@ -185,16 +186,12 @@ namespace threshold
             container2.Use(shader);
             light.Use(shader);
 
-            //location = glGetUniformLocation(shader.Get(), "uShininess");
-            //glUniform1f(location, 200.f);
-
             shader.SetFloat("time", std::abs(std::sinf(time)));
             shader.SetMatrix("uMVPMatrix", projMatrix * viewMatrix * modelMatrix);
             shader.SetMatrix("uModelMatrix", modelMatrix);
             shader.Use();
             glBindVertexArray(vao);
-            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-            //glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, NULL);
+            glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, NULL);
             glBindVertexArray(0);
         }
     }
