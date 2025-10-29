@@ -8,6 +8,8 @@
 using namespace threshold;
 #endif
 
+#include "Application.h"
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -27,6 +29,8 @@ float lastYPos = -9999999.f;
 
 int main()
 {
+    Application app;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -52,7 +56,7 @@ int main()
         return -1;
     }
 
-    init();
+    app.Init();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -60,12 +64,12 @@ int main()
 
         processInput(window);
 
-        update();
+        app.Update();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        draw(camera);
+        app.Render(camera);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -73,7 +77,7 @@ int main()
         deltaTime = glfwGetTime() - startTime;
     }
 
-    destroy();
+    app.Destroy();
     glfwTerminate();
     return 0;
 }
