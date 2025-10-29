@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Shader.h"
 
-Texture::Texture() : imagePointer(0)
+Texture::Texture() : _imagePointer(0)
 {
 
 }
@@ -20,8 +20,8 @@ Texture::~Texture()
 // Read the file to init the texture
 bool Texture::Init(const char* texturePath)
 {
-    glGenTextures(1, &imagePointer);
-    glBindTexture(GL_TEXTURE_2D, imagePointer);
+    glGenTextures(1, &_imagePointer);
+    glBindTexture(GL_TEXTURE_2D, _imagePointer);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -59,7 +59,7 @@ bool Texture::Init(const char* texturePath)
 void Texture::Use(GLuint shaderProgram, std::string textureName, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, imagePointer);
+    glBindTexture(GL_TEXTURE_2D, _imagePointer);
 
     GLint location = glGetUniformLocation(shaderProgram, textureName.c_str());
     glUniform1i(location, unit);

@@ -2,14 +2,14 @@
 #include <iostream>
 #include <fstream>
 
-Shader::Shader() : ProgramID(0U)
+Shader::Shader() : _programID(0U)
 {
 
 }
 
 Shader::~Shader()
 {
-    glDeleteProgram(ProgramID);
+    glDeleteProgram(_programID);
 }
 
 // Read both file to init the vertex shader and the fragment shader
@@ -46,10 +46,10 @@ bool Shader::Init(const char* vertexPath, const char* fragmentPath)
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
 
-    ProgramID = glCreateProgram();
-    glAttachShader(ProgramID, vertexShader);
-    glAttachShader(ProgramID, fragmentShader);
-    glLinkProgram(ProgramID);
+    _programID = glCreateProgram();
+    glAttachShader(_programID, vertexShader);
+    glAttachShader(_programID, fragmentShader);
+    glLinkProgram(_programID);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -63,28 +63,28 @@ bool Shader::Init(const char* vertexPath, const char* fragmentPath)
 // Use the corresponding program
 void Shader::Use()
 {
-    glUseProgram(ProgramID);
+    glUseProgram(_programID);
 }
 
 GLuint Shader::Get()
 {
-    return ProgramID;
+    return _programID;
 }
 
 void Shader::SetInt(const std::string& name, int value) const
 {
-    GLint location = glGetUniformLocation(ProgramID, name.c_str());
+    GLint location = glGetUniformLocation(_programID, name.c_str());
     glUniform1i(location, value);
 }
 
 void Shader::SetFloat(const std::string& name, float value) const
 {
-    GLint location = glGetUniformLocation(ProgramID, name.c_str());
+    GLint location = glGetUniformLocation(_programID, name.c_str());
     glUniform1f(location, value);
 }
 
 void Shader::SetMatrix(const std::string& name, glm::mat4 value) const
 {
-    GLint location = glGetUniformLocation(ProgramID, name.c_str());
+    GLint location = glGetUniformLocation(_programID, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }

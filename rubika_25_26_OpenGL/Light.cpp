@@ -1,8 +1,8 @@
 #include "Shader.h"
 #include "Light.h"
 
-Light::Light() : Position(glm::vec3(0.f)),
-Ambient(glm::vec3(1.f)), Diffuse(glm::vec3(1.f)), Scalar(glm::vec3(1.f))
+Light::Light() : _position(glm::vec3(0.f)),
+_ambient(glm::vec3(1.f)), _diffuse(glm::vec3(1.f)), _scalar(glm::vec3(1.f))
 {
 
 }
@@ -15,10 +15,10 @@ Light::Light(
     float diffuseIntensity,
     const glm::vec3& scalar,
     float scalarIntensity
-) : Position(position),
-Ambient(ambient * ambientIntensity),
-Diffuse(diffuse * diffuseIntensity),
-Scalar(scalar * scalarIntensity)
+) : _position(position),
+_ambient(ambient * ambientIntensity),
+_diffuse(diffuse * diffuseIntensity),
+_scalar(scalar * scalarIntensity)
 {
 
 }
@@ -26,11 +26,11 @@ Scalar(scalar * scalarIntensity)
 void Light::Use(Shader& shader)
 {
     GLint location = glGetUniformLocation(shader.Get(), "light.position");
-    glUniform3f(location, Position.x, Position.y, Position.z);
+    glUniform3f(location, _position.x, _position.y, _position.z);
     location = glGetUniformLocation(shader.Get(), "light.ambient");
-    glUniform3f(location, Ambient.x, Ambient.y, Ambient.z);
+    glUniform3f(location, _ambient.x, _ambient.y, _ambient.z);
     location = glGetUniformLocation(shader.Get(), "light.diffuse");
-    glUniform3f(location, Diffuse.x, Diffuse.y, Diffuse.z);
+    glUniform3f(location, _diffuse.x, _diffuse.y, _diffuse.z);
     location = glGetUniformLocation(shader.Get(), "light.scalar");
-    glUniform3f(location, Scalar.x, Scalar.y, Scalar.z);
+    glUniform3f(location, _scalar.x, _scalar.y, _scalar.z);
 }

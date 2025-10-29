@@ -3,13 +3,13 @@
 
 #define M_PI 3.14159265358979323846264338327950288f
 
-Camera::Camera() : Position(glm::vec3(0.f, 1.f, -3.f)), WorldUp(glm::vec3(0.f, 1.f, 0.f)),
-SpeedUp(false), Pitch(0.f), Yaw(0.f), MovementSpeed(1.f), MouseSensitivity(1.f), Fov(70.f),
-Front(std::cosf(Pitch) * std::sinf(Yaw), std::sinf(Pitch),
-                     std::cosf(Pitch)* std::cosf(Yaw)),
-Right(std::sinf(Yaw + M_PI / 2.f), 0.f,
-                std::cosf(Yaw + M_PI / 2.f)),
-Up(glm::cross(Front, Right))
+Camera::Camera() : _position(glm::vec3(0.f, 1.f, -3.f)), _worldUp(glm::vec3(0.f, 1.f, 0.f)),
+_speedUp(false), _pitch(0.f), _yaw(0.f), _movementSpeed(1.f), _mouseSensitivity(1.f), _fov(70.f),
+_front(std::cosf(_pitch) * std::sinf(_yaw), std::sinf(_pitch),
+                     std::cosf(_pitch)* std::cosf(_yaw)),
+_right(std::sinf(_yaw + M_PI / 2.f), 0.f,
+                std::cosf(_yaw + M_PI / 2.f)),
+_up(glm::cross(_front, _right))
 {
 
 }
@@ -17,14 +17,14 @@ Up(glm::cross(Front, Right))
 Camera::Camera(const glm::vec3& pos,
     const glm::vec3& worldUp,
     float pitch,
-    float yaw) : Position(pos), WorldUp(worldUp),
-    SpeedUp(false), Pitch(pitch), Yaw(yaw),
-    MovementSpeed(1.f), MouseSensitivity(1.f), Fov(45.f),
-    Front(std::cosf(Pitch)* std::sinf(Yaw), std::sinf(Pitch),
-        std::cosf(Pitch)* std::cosf(Yaw)),
-    Right(std::sinf(Yaw + M_PI / 2.f), 0.f,
-        std::cosf(Yaw + M_PI / 2.f)),
-    Up(glm::cross(Front, Right))
+    float yaw) : _position(pos), _worldUp(worldUp),
+    _speedUp(false), _pitch(pitch), _yaw(yaw),
+    _movementSpeed(1.f), _mouseSensitivity(1.f), _fov(45.f),
+    _front(std::cosf(_pitch)* std::sinf(_yaw), std::sinf(_pitch),
+        std::cosf(_pitch)* std::cosf(_yaw)),
+    _right(std::sinf(_yaw + M_PI / 2.f), 0.f,
+        std::cosf(_yaw + M_PI / 2.f)),
+    _up(glm::cross(_front, _right))
 {
 
 }
@@ -32,43 +32,43 @@ Camera::Camera(const glm::vec3& pos,
 // use glm::lookAt
 glm::mat4 Camera::GetMatrix() const
 {
-    return glm::lookAt(Position, Position + Front, WorldUp);
+    return glm::lookAt(_position, _position + _front, _worldUp);
 }
 
 float Camera::GetFov() const
 {
-    return Fov;
+    return _fov;
 }
 
 glm::vec3 Camera::Pos() const
 {
-    return Position;
+    return _position;
 }
 
 // Input
 void Camera::ProcessKeyboard(Direction direction, float deltaTime)
 {
-    float processedSpeedDelta = deltaTime * (SpeedUp ? MovementSpeed * 5.f : MovementSpeed);
+    float processedSpeedDelta = deltaTime * (_speedUp ? _movementSpeed * 5.f : _movementSpeed);
 
     switch (direction)
     {
     case Direction::Forward:
-        Position += processedSpeedDelta * Front;
+        _position += processedSpeedDelta * _front;
         break;
     case Direction::Left:
-        Position += processedSpeedDelta * Right;
+        _position += processedSpeedDelta * _right;
         break;
     case Direction::Backward:
-        Position -= processedSpeedDelta * Front;
+        _position -= processedSpeedDelta * _front;
         break;
     case Direction::Right:
-        Position -= processedSpeedDelta * Right;
+        _position -= processedSpeedDelta * _right;
         break;
     case Direction::Up:
-        Position += processedSpeedDelta * WorldUp;
+        _position += processedSpeedDelta * _worldUp;
         break;
     case Direction::Down:
-        Position -= processedSpeedDelta * WorldUp;
+        _position -= processedSpeedDelta * _worldUp;
         break;
     }
 }
@@ -78,7 +78,7 @@ void Camera::ProcessKeyboard(int key, int pressed, float deltaTime)
     switch (key)
     {
     case GLFW_KEY_LEFT_SHIFT:
-        SpeedUp = pressed;
+        _speedUp = pressed;
         break;
     }
 }
@@ -87,27 +87,27 @@ void Camera::ProcessMouse(float xoffset, float yoffset)
 {
     float degrees = xoffset * 0.3f;
 
-    Yaw -= glm::radians(degrees);
+    _yaw -= glm::radians(degrees);
 
     degrees = yoffset * 0.3f;
 
-    Pitch -= glm::radians(degrees);
-    Pitch = glm::clamp(Pitch, -M_PI / 2.f + 0.1f, M_PI / 2.f - 0.1f);
+    _pitch -= glm::radians(degrees);
+    _pitch = glm::clamp(_pitch, -M_PI / 2.f + 0.1f, M_PI / 2.f - 0.1f);
 
     UpdateCameraRotation();
 }
 
 void Camera::ProcessMouseScroll(float yoffset)
 {
-    Fov -= yoffset * 5.f;
+    _fov -= yoffset * 5.f;
 }
 
 // Compute the Front and Right vector using the euler angles
 void Camera::UpdateCameraRotation()
 {
-    Front = { std::cosf(Pitch) * std::sinf(Yaw), std::sinf(Pitch),
-                     std::cosf(Pitch) * std::cosf(Yaw) };
-    Right = { std::sinf(Yaw + M_PI / 2.f), 0.f,
-                    std::cosf(Yaw + M_PI / 2.f) };
-    Up = glm::cross(Front, Right);
+    _front = { std::cosf(_pitch) * std::sinf(_yaw), std::sinf(_pitch),
+                     std::cosf(_pitch) * std::cosf(_yaw) };
+    _right = { std::sinf(_yaw + M_PI / 2.f), 0.f,
+                    std::cosf(_yaw + M_PI / 2.f) };
+    _up = glm::cross(_front, _right);
 }

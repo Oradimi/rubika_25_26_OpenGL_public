@@ -42,23 +42,23 @@ private:
     void UpdateCameraRotation();
 
     // Translation
-    glm::vec3 Position;
+    glm::vec3 _position;
 
     // Rotation - Must be normalized
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
+    glm::vec3 _front;
+    glm::vec3 _up;
+    glm::vec3 _right;
+    glm::vec3 _worldUp;
 
     // Euler Angles
-    float Yaw;
-    float Pitch;
+    float _yaw;
+    float _pitch;
 
     // Camera states
-    bool SpeedUp;
+    bool _speedUp;
 
     // Camera options
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Fov;
+    float _movementSpeed;
+    float _mouseSensitivity;
+    float _fov;
 };

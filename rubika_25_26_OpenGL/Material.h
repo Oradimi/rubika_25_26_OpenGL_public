@@ -31,11 +31,11 @@ public:
     void Use(Shader& shader) const;
 
 private:
-    Texture* DiffuseTexture = nullptr;
-    Texture* SpecularTexture = nullptr;
+    Texture* _diffuseTexture = nullptr;
+    Texture* _specularTexture = nullptr;
 
-    glm::vec3 Ambient;
-    glm::vec3 Diffuse;
-    glm::vec3 Specular;
-    float Shininess;
+    glm::vec3 _ambient;
+    glm::vec3 _diffuse;
+    glm::vec3 _specular;
+    float _shininess;
 };

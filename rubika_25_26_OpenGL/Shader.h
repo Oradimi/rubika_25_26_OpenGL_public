@@ -26,5 +26,5 @@ public:
     void SetMatrix(const std::string& name, glm::mat4 value) const;
 
 private:
-    GLuint ProgramID;
+    GLuint _programID;
 };

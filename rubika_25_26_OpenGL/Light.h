@@ -24,8 +24,8 @@ public:
     void Use(Shader& shader);
 
 private:
-    glm::vec3 Position;
-    glm::vec3 Ambient;
-    glm::vec3 Diffuse;
-    glm::vec3 Scalar;
+    glm::vec3 _position;
+    glm::vec3 _ambient;
+    glm::vec3 _diffuse;
+    glm::vec3 _scalar;
 };

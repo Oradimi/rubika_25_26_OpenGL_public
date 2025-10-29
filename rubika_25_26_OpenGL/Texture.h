@@ -14,5 +14,5 @@ public:
 
 private:
     //GLuint image;
-    GLuint imagePointer;
+    GLuint _imagePointer;
 };

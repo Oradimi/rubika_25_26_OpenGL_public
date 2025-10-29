@@ -9,8 +9,8 @@ Material::Material(
     const glm::vec3& diffuse,
     const glm::vec3& specular,
     float shininess
-) : DiffuseTexture(&diffuseTexture), SpecularTexture(&specularTexture),
-Ambient(ambient), Diffuse(diffuse), Specular(specular), Shininess(shininess)
+) : _diffuseTexture(&diffuseTexture), _specularTexture(&specularTexture),
+_ambient(ambient), _diffuse(diffuse), _specular(specular), _shininess(shininess)
 {
 
 }
@@ -20,7 +20,7 @@ Material::Material(
     const glm::vec3& diffuse,
     const glm::vec3& specular,
     float shininess
-) : Ambient(ambient), Diffuse(diffuse), Specular(specular), Shininess(shininess)
+) : _ambient(ambient), _diffuse(diffuse), _specular(specular), _shininess(shininess)
 {
 
 }
@@ -28,11 +28,11 @@ Material::Material(
 void Material::Use(Shader& shader) const
 {
     GLint location = glGetUniformLocation(shader.Get(), "material.ambient");
-    glUniform3f(location, Ambient.x, Ambient.y, Ambient.z);
+    glUniform3f(location, _ambient.x, _ambient.y, _ambient.z);
     location = glGetUniformLocation(shader.Get(), "material.diffuse");
-    glUniform3f(location, Diffuse.x, Diffuse.y, Diffuse.z);
+    glUniform3f(location, _diffuse.x, _diffuse.y, _diffuse.z);
     location = glGetUniformLocation(shader.Get(), "material.specular");
-    glUniform3f(location, Specular.x, Specular.y, Specular.z);
+    glUniform3f(location, _specular.x, _specular.y, _specular.z);
     location = glGetUniformLocation(shader.Get(), "material.shininess");
-    glUniform1f(location, Shininess);
+    glUniform1f(location, _shininess);
 }

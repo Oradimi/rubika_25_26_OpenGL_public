@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "Material.h"
 #include "Light.h"
+#include "Vertex.h"
 #include "Threshold.h"
 
 #include <glad/glad.h>
