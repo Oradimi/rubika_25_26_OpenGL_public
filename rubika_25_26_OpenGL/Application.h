@@ -5,18 +5,14 @@
 #include "Material.h"
 #include "Light.h"
 #include "Vertex.h"
+#include "Camera.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
 
-class Camera;
-
 class Application {
 private:
-    bool debug = false;
-    bool running = false;
-
     GLuint vbo{};
     GLuint vao{};
     GLuint ebo{};
@@ -61,7 +57,15 @@ private:
 
     static constexpr glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(1.0f,  1.0f, -1.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
     static constexpr unsigned int indices[] = {
@@ -92,6 +96,9 @@ private:
 
     const int vertexCount = 36;
 
+    GLFWwindow* window = nullptr;
+
+    Camera camera;
     Shader shader;
     Texture textureDiffuse;
     Texture textureSpecular;
@@ -102,9 +109,9 @@ private:
     Material cyanPlastic{ glm::vec3(0.f, 0.1f, 0.06f), glm::vec3(0.0f, 0.50980392f, 0.50980392f), glm::vec3(0.50196078f, 0.50196078f, 0.50196078f), 0.25f };
     Material pearl{ glm::vec3(0.25f, 0.20725f, 0.20725f), glm::vec3(1.0f, 0.829f, 0.829f), glm::vec3(0.296648f, 0.296648f, 0.296648f), 0.088f };
 
-    Light light{ glm::vec3(1.0f, 1.0f, -1.0f),
-        glm::vec3(1.f), 0.2f,
-        glm::vec3(1.f), 3.0f,
+    Light light{ glm::vec3(1.0f, 1.0f, -5.0f),
+        glm::vec3(1.f), 0.4f,
+        glm::vec3(1.f), 2.0f,
         glm::vec3(1.f), 1.0f
     };
 
@@ -113,14 +120,28 @@ private:
 
     glm::vec3 lightColor{ 1.0f, 1.0f, 1.0f };
 
+    float startTime = glfwGetTime();
+    float deltaTime = 1.f / 30.f;
+
+    // settings
+    const unsigned int SCR_WIDTH = 800;
+    const unsigned int SCR_HEIGHT = 600;
+
+    float lastXPos = -9999999.f;
+    float lastYPos = -9999999.f;
+
+    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 public:
     Application() = default;
     ~Application() = default;
-    //bool IsRunning();
-    //void Setup();
+    bool IsRunning();
+    int Setup();
     void Init();
-    //void Input();
+    void Input();
     void Update();
-    void Render(Camera& camera);
+    void Render();
     void Destroy();
 };

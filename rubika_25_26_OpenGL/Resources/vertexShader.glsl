@@ -19,5 +19,5 @@ void main()
     vPos = (uModelMatrix * vec4(aPos, 1.0)).xyz;
     vColor = aColor;
     vTexCoord = aTexCoord;
-    vNormal = normalize(uModelMatrix * vec4(aNormal, 1.0)).xyz;
+    vNormal = normalize(transpose(inverse(uModelMatrix)) * vec4(aNormal, 1.0)).xyz;
 };

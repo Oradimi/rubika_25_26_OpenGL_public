@@ -3,7 +3,7 @@
 
 #define M_PI 3.14159265358979323846264338327950288f
 
-Camera::Camera() : _position(glm::vec3(0.f, 1.f, -3.f)), _worldUp(glm::vec3(0.f, 1.f, 0.f)),
+Camera::Camera() : _position(glm::vec3(1.f, 1.f, -5.f)), _worldUp(glm::vec3(0.f, 1.f, 0.f)),
 _speedUp(false), _pitch(0.f), _yaw(0.f), _movementSpeed(1.f), _mouseSensitivity(1.f), _fov(70.f),
 _front(std::cosf(_pitch) * std::sinf(_yaw), std::sinf(_pitch),
                      std::cosf(_pitch)* std::cosf(_yaw)),
