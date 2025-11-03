@@ -1,5 +1,8 @@
 #include "Application.h"
 #include <iostream>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // Public methods
 
@@ -34,7 +37,6 @@ int Application::Setup() {
         static_cast<Application*>(glfwGetWindowUserPointer(w))->scroll_callback(w, xoffset, yoffset);
     });
 
-
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -42,6 +44,17 @@ int Application::Setup() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
 
     return 0;
 }
@@ -85,8 +98,8 @@ void Application::Init()
     glBindVertexArray(0);
 
     shader.Init(vertexPath, fragmentPath);
-    textureDiffuse.Init("../Resources/container2_diffuse.png");
-    textureSpecular.Init("../Resources/container2_specular.png");
+    textureDiffuse.Init("./Resources/container2_diffuse.png");
+    textureSpecular.Init("./Resources/container2_specular.png");
 
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_BACK);
@@ -150,6 +163,14 @@ void Application::Render()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glfwPollEvents();
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow(); // Show demo window! :)
+
     float time = glfwGetTime();
 
     for (auto& cubePosition : cubePositions) {
@@ -179,8 +200,11 @@ void Application::Render()
         glBindVertexArray(0);
     }
 
+    // Rendering
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     glfwSwapBuffers(window);
-    glfwPollEvents();
 
     deltaTime = glfwGetTime() - startTime;
 }
@@ -189,6 +213,11 @@ void Application::Destroy()
 {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwTerminate();
 }
 

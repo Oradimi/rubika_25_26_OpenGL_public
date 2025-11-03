@@ -118,8 +118,6 @@ private:
     const char* vertexPath = "./Resources/vertexShader.glsl";
     const char* fragmentPath = "./Resources/fragmentShader.glsl";
 
-    glm::vec3 lightColor{ 1.0f, 1.0f, 1.0f };
-
     float startTime = glfwGetTime();
     float deltaTime = 1.f / 30.f;
 
